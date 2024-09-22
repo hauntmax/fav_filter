@@ -70,7 +70,7 @@
                  "$$ = new Tokens\\AndExpr($3, $5)" ],
 
                [ "OR ( EXPR , EXPR )",
-                 "$$ = new Tokens\\OrExpr($3, $5)" ] ],
+                 "$$ = new Tokens\\OrExpr($3, $5)" ],
 
                [ "LIKE ( EXPR , EXPR )",
                  "$$ = new Tokens\\LikeExpr($3, $5)" ] ],
