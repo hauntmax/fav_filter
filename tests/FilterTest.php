@@ -148,7 +148,7 @@ class FilterTest extends TestCase
     public function likeEndsApplyTest()
     {
         $ast = new T\LikeExpr(
-            new T\FldVal( 'VIN' ),
+            new T\FldVal( 'Vin' ),
             new T\StrVal( '"%516"' )
         );
 
@@ -195,7 +195,7 @@ class FilterTest extends TestCase
     {
         $ast = new T\LikeExpr(
             new T\FldVal( 'RegNumber' ),
-            new T\StrVal( '"%ХК%"' )
+            new T\StrVal( '"%XK%"' )
         );
 
         $data = [

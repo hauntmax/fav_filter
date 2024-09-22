@@ -6,8 +6,8 @@ class LikeExpr extends BinaryExpression
 {
     public function apply(array $data)
     {
-        $fieldName = $this->left->apply($data);
-        $findValue = $this->right->apply($data);
+        $fieldName = $this->left->getValue();
+        $findValue = $this->right->getValue();
 
         $result = [];
         foreach ($data as $listObject) {
@@ -18,11 +18,11 @@ class LikeExpr extends BinaryExpression
                             $result[] = $listObject;
                         }
                     } elseif ($this->isPercentAtStart($findValue)) {
-                        if ($this->endsWith($value, ltrim($findValue, '%'))) {
+                        if ($this->strEndsWith($value, ltrim($findValue, '%'))) {
                             $result[] = $listObject;
                         }
                     } elseif ($this->isPercentAtEnd($findValue)) {
-                        if ($this->startsWith($value, rtrim($findValue, '%'))) {
+                        if ($this->strStartsWith($value, rtrim($findValue, '%'))) {
                             $result[] = $listObject;
                         }
                     }
@@ -33,14 +33,14 @@ class LikeExpr extends BinaryExpression
         return $result;
     }
 
-    private function isPercentAtStart(string $value)
+    private function isPercentAtStart(string $value): bool
     {
         return strpos($value, '%') === 0;
     }
 
-    private function isPercentAtEnd(string $value)
+    private function isPercentAtEnd(string $value): bool
     {
-        return strpos($value, '%') === (strlen($value) - 1);
+        return $this->strEndsWith($value, '%');
     }
 
     private function strContains($haystack, $needle): bool
@@ -48,14 +48,14 @@ class LikeExpr extends BinaryExpression
         return (bool) strpos($haystack, $needle);
     }
 
-    private function endsWith($haystack, $needle): bool
+    private function strEndsWith($haystack, $needle): bool
     {
         $length = strlen($needle);
 
         return !($length > 0) || substr($haystack, -$length) === $needle;
     }
 
-    private function startsWith($haystack, $needle): bool
+    private function strStartsWith($haystack, $needle): bool
     {
         return strpos($haystack, $needle) === 0;
     }
