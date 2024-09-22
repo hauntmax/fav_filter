@@ -2,7 +2,7 @@
     "name": "cp/filter",
     "description": "Citypoint Filter for APIs.",
     "type": "library",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "require": {
         "php": ">=7.4.0",
         "nesbot/carbon": ">=1.18"
