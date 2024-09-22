@@ -5,10 +5,10 @@
     "version": "1.0.0",
     "require": {
         "php": ">=7.4.0",
-        "../../../vendor/nesbot/carbon": ">=1.18"
+        "nesbot/carbon": ">=1.18"
     },
     "require-dev": {
-        "../../../vendor/phpunit/phpunit": "*",
+        "phpunit/phpunit": "*",
         "phake/phake": "^3.0"
     },
     "autoload": {
