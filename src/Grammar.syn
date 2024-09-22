@@ -37,6 +37,8 @@
 
             ['NULL', "return 'NULL'"],
 
+            ['like', "return 'LIKE'"],
+
             [",",  "return ','" ],
             ["\\(",  "return '('" ],
             ["\\)",  "return ')'" ],
@@ -69,6 +71,9 @@
 
                [ "OR ( EXPR , EXPR )",
                  "$$ = new Tokens\\OrExpr($3, $5)" ] ],
+
+               [ "LIKE ( EXPR , EXPR )",
+                 "$$ = new Tokens\\LikeExpr($3, $5)" ] ],
 
         "VALUE": [ ["NUMBER",   "$$ = new Tokens\\IntVal($1)"  ],
                    ["STRING",   "$$ = new Tokens\\StrVal($1)"  ],
