@@ -9,28 +9,41 @@ class LikeExpr extends BinaryExpression
         $fieldName = $this->left->getValue();
         $findValue = $this->right->getValue();
 
-        $result = [];
+        $percentPositionConditionMap = [
+            'StartEnd' => "\$isContains = \$this->strContains(\$value, trim(\"$findValue\", '%'));",
+            'Start' => "\$isContains = \$this->strEndsWith(\$value, ltrim(\"$findValue\", '%'));",
+            'End' => "\$isContains = \$this->strStartsWith(\$value, rtrim(\"$findValue\", '%'));",
+        ];
+
+        if ($this->isPercentAtStart($findValue) && $this->isPercentAtEnd($findValue)) {
+            $percentPosition = 'StartEnd';
+        } elseif ($this->isPercentAtStart($findValue)) {
+            $percentPosition = 'Start';
+        } elseif ($this->isPercentAtEnd($findValue)) {
+            $percentPosition = 'End';
+        } else {
+            return [];
+        }
+
+        return $this->getFiltered($fieldName, $data, $percentPositionConditionMap[$percentPosition]);
+    }
+
+    private function getFiltered(string $fieldName, array $data, string $condition): array
+    {
+        $filtered = [];
+        $isContains = false;
         foreach ($data as $listObject) {
             foreach ($listObject as $key => $value) {
                 if ($key === $fieldName) {
-                    if ($this->isPercentAtStart($findValue) && $this->isPercentAtEnd($findValue)) {
-                        if ($this->strContains($value, trim($findValue, '%'))) {
-                            $result[] = $listObject;
-                        }
-                    } elseif ($this->isPercentAtStart($findValue)) {
-                        if ($this->strEndsWith($value, ltrim($findValue, '%'))) {
-                            $result[] = $listObject;
-                        }
-                    } elseif ($this->isPercentAtEnd($findValue)) {
-                        if ($this->strStartsWith($value, rtrim($findValue, '%'))) {
-                            $result[] = $listObject;
-                        }
+                    eval($condition);
+                    if ($isContains) {
+                        $filtered[] = $listObject;
                     }
                 }
             }
         }
 
-        return $result;
+        return $filtered;
     }
 
     private function isPercentAtStart(string $value): bool
