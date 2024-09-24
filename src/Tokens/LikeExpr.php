@@ -6,70 +6,46 @@ class LikeExpr extends BinaryExpression
 {
     public function apply(array $data)
     {
-        $fieldName = $this->left->getValue();
-        $findValue = $this->right->getValue();
-
-        $percentPositionConditionMap = [
-            'StartEnd' => "\$isContains = \$this->strContains(\$value, trim(\"$findValue\", '%'));",
-            'Start' => "\$isContains = \$this->strEndsWith(\$value, ltrim(\"$findValue\", '%'));",
-            'End' => "\$isContains = \$this->strStartsWith(\$value, rtrim(\"$findValue\", '%'));",
-        ];
-
-        if ($this->isPercentAtStart($findValue) && $this->isPercentAtEnd($findValue)) {
-            $percentPosition = 'StartEnd';
-        } elseif ($this->isPercentAtStart($findValue)) {
-            $percentPosition = 'Start';
-        } elseif ($this->isPercentAtEnd($findValue)) {
-            $percentPosition = 'End';
-        } else {
-            return [];
-        }
-
-        return $this->getFiltered($fieldName, $data, $percentPositionConditionMap[$percentPosition]);
-    }
-
-    private function getFiltered(string $fieldName, array $data, string $condition): array
-    {
-        $filtered = [];
-        $isContains = false;
-        foreach ($data as $listObject) {
-            foreach ($listObject as $key => $value) {
-                if ($key === $fieldName) {
-                    eval($condition);
-                    if ($isContains) {
-                        $filtered[] = $listObject;
+        $left = $this->left->apply($data);
+        $right = $this->right->apply($data);
+        $entries = array_values(array_filter(explode('%', $right), function ($entry) {
+            return $entry !== '';
+        }));
+        $symLeftValueCounter = 0;
+        foreach ($entries as $entry) {
+            if ($this->strContains($entry, '_')) {
+                $s = substr($left, $symLeftValueCounter, strlen($left));
+                $pattern = '/';
+                for ($i = 0; $i < strlen($entry); $i++) {
+                    if ($entry[$i] === '_') {
+                        $pattern .= "\w";
+                    } else {
+                        $pattern .= $entry[$i];
                     }
                 }
+                $pattern .= '/i';
+
+                if (preg_match($pattern, $s, $matches)) {
+                    $match = reset($matches);
+                    $symLeftValueCounter += strlen($match);
+                } else {
+                    return false;
+                };
+            } else {
+                $s = substr($left, $symLeftValueCounter, strlen($left));
+                $entry_pos = strpos($s, $entry);
+                if ($entry_pos === false) {
+                    return false;
+                }
+                $symLeftValueCounter += ($entry_pos + 1);
             }
         }
 
-        return $filtered;
-    }
-
-    private function isPercentAtStart(string $value): bool
-    {
-        return strpos($value, '%') === 0;
-    }
-
-    private function isPercentAtEnd(string $value): bool
-    {
-        return $this->strEndsWith($value, '%');
+        return true;
     }
 
     private function strContains($haystack, $needle): bool
     {
-        return (bool) strpos($haystack, $needle);
-    }
-
-    private function strEndsWith($haystack, $needle): bool
-    {
-        $length = strlen($needle);
-
-        return !($length > 0) || substr($haystack, -$length) === $needle;
-    }
-
-    private function strStartsWith($haystack, $needle): bool
-    {
-        return strpos($haystack, $needle) === 0;
+        return !is_bool(strpos($haystack, $needle));
     }
 }

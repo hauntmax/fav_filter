@@ -99,141 +99,47 @@ class FilterTest extends TestCase
         $this->assertEquals( $expect, $ast, 'not valid or' );
     }
 
-    public function likeStartsApplyTest()
+    public function testLikeStartsApplyExpr()
     {
         $ast = new T\LikeExpr(
             new T\FldVal( 'Model' ),
             new T\StrVal( '"Volks%"' )
         );
 
-        $data = [
-            [
-                'Model' => 'Volkswagen Polo',
-                "RegNumber" => "X 586 XK 677",
-                "Vin" => "3GKEC16T51G226718",
-            ],
-            [
-                'Model' => 'Mazda',
-                "RegNumber" => "H 349 PP 338",
-                "Vin" => "1N4AL11D35C393619",
-            ],
-            [
-                'Model' => 'VOLVO',
-                "RegNumber" => "A 546 XK 852",
-                "Vin" => "1FTZR15V5YTB72526",
-            ],
-            [
-                'Model' => 'Volkswagen Polo',
-                "RegNumber" => "B 865 PC 732",
-                "Vin" => "3VWSE69M32M154055",
-            ],
-        ];
-
-        $expect = [
-            [
-                'Model' => 'Volkswagen Polo',
-                "RegNumber" => "X 586 XK 677",
-                "Vin" => "3GKEC16T51G226718",
-            ],
-            [
-                'Model' => 'Volkswagen Polo',
-                "RegNumber" => "B 865 PC 732",
-                "Vin" => "3VWSE69M32M154055",
-            ]
-        ];
-
-        $this->assertEquals($expect, $ast->apply($data), 'Not valid apply with str and fld' );
+        $this->assertTrue( $ast->apply(['Model' => 'Volkswagen']), 'Not valid apply with str and fld' );
+        $this->assertFalse( $ast->apply(['Model' => 'Walkswagen']), 'Not valid apply with str and fld' );
     }
 
-    public function likeEndsApplyTest()
+    public function testLikeEndsApplyExpr()
     {
         $ast = new T\LikeExpr(
-            new T\FldVal( 'Vin' ),
-            new T\StrVal( '"%516"' )
+            new T\FldVal( 'Model' ),
+            new T\StrVal( '"%wagen"' )
         );
 
-        $data = [
-            [
-                'Model' => 'Volkswagen Polo',
-                "RegNumber" => "X 586 XK 677",
-                "Vin" => "3GKEC16T51G226718",
-            ],
-            [
-                'Model' => 'Mazda',
-                "RegNumber" => "H 349 PP 338",
-                "Vin" => "1N4AL11D35C393516",
-            ],
-            [
-                'Model' => 'VOLVO',
-                "RegNumber" => "A 546 XK 852",
-                "Vin" => "1FTZR15V5YTB72516",
-            ],
-            [
-                'Model' => 'Volkswagen Polo',
-                "RegNumber" => "B 865 PC 732",
-                "Vin" => "3VWSE69M32M154055",
-            ],
-        ];
-
-        $expect = [
-            [
-                'Model' => 'Mazda',
-                "RegNumber" => "H 349 PP 338",
-                "Vin" => "1N4AL11D35C393516",
-            ],
-            [
-                'Model' => 'VOLVO',
-                "RegNumber" => "A 546 XK 852",
-                "Vin" => "1FTZR15V5YTB72516",
-            ],
-        ];
-
-        $this->assertEquals($expect, $ast->apply($data), 'Not valid apply with str and fld' );
+        $this->assertTrue( $ast->apply(['Model' => 'Volkswagen']), 'Not valid apply with str and fld' );
+        $this->assertFalse( $ast->apply(['Model' => 'Volkswagkan']), 'Not valid apply with str and fld' );
     }
 
     public function likeContainsApplyTest()
     {
         $ast = new T\LikeExpr(
-            new T\FldVal( 'RegNumber' ),
-            new T\StrVal( '"%XK%"' )
+            new T\FldVal( 'Model' ),
+            new T\StrVal( '"%wag%"' )
         );
 
-        $data = [
-            [
-                'Model' => 'Volkswagen Polo',
-                "RegNumber" => "X 586 XK 677",
-                "Vin" => "3GKEC16T51G226718",
-            ],
-            [
-                'Model' => 'Mazda',
-                "RegNumber" => "H 349 PP 338",
-                "Vin" => "1N4AL11D35C393516",
-            ],
-            [
-                'Model' => 'VOLVO',
-                "RegNumber" => "A 546 XK 852",
-                "Vin" => "1FTZR15V5YTB72516",
-            ],
-            [
-                'Model' => 'Volkswagen Polo',
-                "RegNumber" => "B 865 PC 732",
-                "Vin" => "3VWSE69M32M154055",
-            ],
-        ];
+        $this->assertTrue( $ast->apply(['Model' => 'Volkswagen']), 'Not valid apply with str and fld' );
+        $this->assertFalse( $ast->apply(['Model' => 'Volkswugen']), 'Not valid apply with str and fld' );
+    }
 
-        $expect = [
-            [
-                'Model' => 'Volkswagen Polo',
-                "RegNumber" => "X 586 XK 677",
-                "Vin" => "3GKEC16T51G226718",
-            ],
-            [
-                'Model' => 'VOLVO',
-                "RegNumber" => "A 546 XK 852",
-                "Vin" => "1FTZR15V5YTB72516",
-            ],
-        ];
+    public function likeContainsMultipleApplyTest()
+    {
+        $ast = new T\LikeExpr(
+            new T\FldVal( 'Model' ),
+            new T\StrVal( '"%%V__ks%w__%_n%"' )
+        );
 
-        $this->assertEquals($expect, $ast->apply($data), 'Not valid apply with str and fld' );
+        $this->assertTrue( $ast->apply(['Model' => 'Volkswagen']), 'Not valid apply with str and fld' );
+        $this->assertFalse( $ast->apply(['Model' => 'Vollkswarglen']), 'Not valid apply with str and fld' );
     }
 }
