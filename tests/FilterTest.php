@@ -99,6 +99,17 @@ class FilterTest extends TestCase
         $this->assertEquals( $expect, $ast, 'not valid or' );
     }
 
+    public function testLikeExpr()
+    {
+        $expect = new T\LikeExpr(
+            new T\FldVal( 'Model' ),
+            new T\StrVal( '"Volks%"' )
+        );
+
+        $ast = $this->filter->getAst('like(Model, "Volks%")');
+        $this->assertEquals( $expect, $ast, 'not valid like' );
+    }
+
     public function testLikeStartsApplyExpr()
     {
         $ast = new T\LikeExpr(
@@ -121,7 +132,7 @@ class FilterTest extends TestCase
         $this->assertFalse( $ast->apply(['Model' => 'Volkswagkan']), 'Not valid apply with str and fld' );
     }
 
-    public function likeContainsApplyTest()
+    public function testLikeContainsApplyTest()
     {
         $ast = new T\LikeExpr(
             new T\FldVal( 'Model' ),
@@ -132,7 +143,7 @@ class FilterTest extends TestCase
         $this->assertFalse( $ast->apply(['Model' => 'Volkswugen']), 'Not valid apply with str and fld' );
     }
 
-    public function likeContainsMultipleApplyTest()
+    public function testLikeContainsMultipleApplyTest()
     {
         $ast = new T\LikeExpr(
             new T\FldVal( 'Model' ),
